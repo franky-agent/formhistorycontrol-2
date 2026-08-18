@@ -13,6 +13,10 @@ const IS_SAFARI = navigator.userAgent.includes("Safari") && !navigator.userAgent
 browser.runtime.onMessage.addListener(receiveContextEvents);
 
 function receiveContextEvents(fhcEvent, sender, sendResponse) {
+    // Security: only accept messages from this extension's own contexts.
+    if (!sender || sender.id !== browser.runtime.id) {
+        return false;
+    }
     // console.log('DEBUG receiveContextEvents')
     if (fhcEvent.eventType && fhcEvent.eventType === 888 && fhcEvent.contextmenuAvailChanged) {
         // remove the context menu and rebuild from scratch

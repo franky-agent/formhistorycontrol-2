@@ -38,6 +38,10 @@ const SVG_PAGE_ICON = "/theme/icons/fhc_icon_bw.svg";
 
 
 function receiveIconEvents(fhcEvent, sender, sendResponse) {
+    // Security: only accept messages from this extension's own contexts.
+    if (!sender || sender.id !== browser.runtime.id) {
+        return false;
+    }
     if (fhcEvent.eventType && fhcEvent.eventType === 888 &&
           (fhcEvent.domainFilterChanged || fhcEvent.fieldFilterChanged || fhcEvent.retainTypeChanged || fhcEvent.overrideIncognitoChanged)) {
         // only for the active browsertab(s)

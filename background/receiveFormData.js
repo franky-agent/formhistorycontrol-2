@@ -10,6 +10,12 @@
 browser.runtime.onMessage.addListener(receiveEvents);
 
 function receiveEvents(fhcEvent, sender, sendResponse) {
+    // Security: only accept messages from this extension's own contexts
+    // (content scripts, popups, options page). Reject messages from other
+    // extensions which could otherwise read/inject form history via eventType 555/4/11.
+    if (!sender || sender.id !== browser.runtime.id) {
+        return false;
+    }
     if (fhcEvent.eventType) {
         switch (fhcEvent.eventType) {
             case 1:

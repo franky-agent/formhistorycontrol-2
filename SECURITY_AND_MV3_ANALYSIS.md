@@ -6,6 +6,10 @@
 **Date:** 2025-08-18
 **Versions audited:** `master` (v2.5.12.0, Manifest V2) and `manifest3` branch (v3.0.4.0, Manifest V3)
 
+> **UPDATE (post-audit):** All actionable findings have been patched in this fork.
+> See the [Fixes Applied](#12-fixes-applied) section (§12) for the complete list of changes
+> committed to both `master` and `manifest3`.
+
 ---
 
 ## Table of Contents
@@ -21,6 +25,7 @@
 9. [Critical: Broken Chrome MV3 Build on `master`](#9-critical-broken-chrome-mv3-build-on-master)
 10. [Prioritized Recommendations](#10-prioritized-recommendations)
 11. [Methodology & Sources](#11-methodology--sources)
+12. [Fixes Applied](#12-fixes-applied)
 
 ---
 
@@ -502,6 +507,54 @@ the manifest path). Option (a) is recommended since `manifest3` is the intended 
 - Mozilla Blog — Firefox MV3 approach (Feb 25, 2025): https://blog.mozilla.org/en/firefox/firefox-manifest-v3-adblockers/
 - Firefox 109 release notes: https://www.firefox.com/en-US/firefox/109.0/releasenotes/
 - mozilla/addons issue #15890 (data_collection_permissions): https://github.com/mozilla/addons/issues/15890
+
+---
+
+## 12. Fixes Applied
+
+All actionable findings from this audit have been patched in the fork
+(`franky-agent/formhistorycontrol-2`) on both the `master` and `manifest3`
+branches. Each fix was syntax-checked with `node --check` and each manifest was
+validated as well-formed JSON.
+
+### Security fixes (applied to both `master` and `manifest3`)
+
+Commit: `fix(security): patch stored XSS, validate message senders, exclude sensitive fields`
+
+| Finding | Fix | Files changed |
+|---|---|---|
+| **S1 (HIGH)** Stored XSS in `formatDetail` | Added an `esc()` HTML-escape helper inside `formatDetail` and escaped **all** interpolated stored values (`d[1]`, `d[2]`, `d[3]`, `d[4]`, `d[7]`, `d[8]`) and the i18n labels before concatenation into the HTML string rendered by DataTables `row.child()`. | `popup/tableview/DataTableUtil.js` |
+| **S5 (LOW)** `ellipsis()` unescaped visible text | Escaped the `shortened` visible text with the existing `esc()` helper before injecting into the `<span>`. | `popup/tableview/DataTableUtil.js` |
+| **S2 (MEDIUM)** Unvalidated `onMessage` senders | Added `if (!sender || sender.id !== browser.runtime.id) return false;` guard at the top of all three background message listeners. | `background/receiveFormData.js`, `background/contextmenu.js`, `background/applicationIcon.js` |
+| **S4 (MEDIUM)** Sensitive fields captured | Added `_isExcludedByAutocomplete()` helper that skips fields whose `autocomplete` attribute contains sensitive tokens (`cc-number`, `cc-csc`, `cc-exp*`, `cc-name*`, `current-password`, `new-password`, `one-time-code`, `off`, `nope`). Applied at the `onContentChanged` save path and `_fillformfields` in `collectFormData.js`, and in `addAutocomplete()` in `add-auto-complete.js` so autocomplete is not attached to sensitive fields. | `content/collectFormData.js`, `content/add-auto-complete.js` |
+
+### MV3 / build fixes
+
+**`master` branch** — Commit: `fix(manifest): fix broken Chrome MV3 build on master`
+
+| Finding | Fix | Files changed |
+|---|---|---|
+| **§9 (CRITICAL)** Chrome MV3 manifest references missing `service-worker.js` | Created `background/service-worker.js` (an `importScripts` entry point mirroring the `manifest3` branch's `chrome-service-worker.js`) so the referenced file exists and the Chrome build loads. | `background/service-worker.js` (new) |
+| **§8b** Missing `host_permissions` on Chrome MV3 | Added `host_permissions: ["*://*/*", "file:///*"]` so content scripts can inject on all matched hosts under Chrome MV3. | `manifest.chrome.json` |
+| **§8b** Missing CSP on Chrome MV3 | Added `content_security_policy.extension_pages = "default-src 'self'"`. | `manifest.chrome.json` |
+
+**`manifest3` branch** — Commit: `feat(mv3): Firefox MV3 compliance finishing touches`
+
+| Finding | Fix | Files changed |
+|---|---|---|
+| **§7** Missing `gecko_android` | Added `"gecko_android": {}` to `browser_specific_settings` for Firefox-for-Android support. | `manifest.firefox.json` |
+| **§7/§11** Missing `data_collection_permissions` | Added `gecko.data_collection_permissions: { required: ["none"], optional: [] }`, required for new AMO submissions after Nov 3, 2025. | `manifest.firefox.json` |
+| **§7** `strict_min_version` too low | Raised from `109.0` to `115.0` (current Firefox ESR baseline). | `manifest.firefox.json` |
+| **§8d** Missing CSP on Chrome MV3 | Added `content_security_policy.extension_pages = "default-src 'self'"`. | `manifest.chrome.json` |
+
+### Not patched (deferred / require maintainer decision)
+
+| Finding | Reason |
+|---|---|
+| **S3 (MEDIUM)** Autocomplete cross-site data exfiltration | Fixing this requires a product decision (scoping autocomplete to the same host that saved the entry changes user-visible behaviour). Documented in the report §10 recommendation #13 for the maintainer to evaluate. |
+| **S6 (LOW)** Import data not sanitized at import time | The S1 fix removes the exploitable sink, so imported data can no longer execute as XSS in the popup. Full import-time schema validation is a larger change left for the maintainer. |
+| **S7 (INFO)** `marked` 3.0.8 outdated | Library upgrade (3.0.8 → v12+) is a dependency bump that requires regression testing of the entry-view markdown rendering; left for the maintainer. DOMPurify post-processing already mitigates XSS. |
+| Polyfill version not pinned | Documenting/pinning `webextension-polyfill` version in `dist_3rd-Party-Libs.md` is a housekeeping task left for the maintainer. |
 
 ---
 

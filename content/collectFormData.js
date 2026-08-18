@@ -708,7 +708,7 @@ function onContentChanged(event) {
     // only handle text inputs
     if ("input" === n && !_isTextInputSubtype(t.type)) return;
     // skip fields marked sensitive/opted-out via autocomplete attribute (passwords, cc, one-time-code, off)
-    if ("input" === n && _isExcludedByAutocomplete(t)) return;
+    if (("input" === n || "textarea" === n) && _isExcludedByAutocomplete(t)) return;
 
     //console.log("node of type: " + n);
     if ("textarea" === n || "input" === n) {

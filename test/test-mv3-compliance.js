@@ -112,10 +112,10 @@ test('browser_specific_settings.gecko.id is set (required for MV3 signing)', () 
     assert.ok(m.browser_specific_settings.gecko.id, 'gecko.id must be set');
 });
 
-test('strict_min_version is at least 115.0', () => {
+test('strict_min_version is at least 128.0', () => {
     const m = readJSON('manifest.firefox.json');
     const minVer = parseInt(m.browser_specific_settings.gecko.strict_min_version);
-    assert.ok(minVer >= 115, `strict_min_version should be >= 115, got ${minVer}`);
+    assert.ok(minVer >= 128, `strict_min_version should be >= 128, got ${minVer}`);
 });
 
 test('gecko_android is present (Firefox for Android support)', () => {

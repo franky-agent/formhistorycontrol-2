@@ -72,8 +72,8 @@ class DataTableUtil {
             '<tr><td><span class="label">'+esc(i18n.value)+':</span></td><td><div class="detail-info">'+esc(d[2])+'</div></td></tr>'+
             '<tr><td><span class="label">'+esc(i18n.type)+':</span></td><td>'+esc(d[3])+'</td></tr>'+
             (d[4]?('<tr><td><span class="label">'+esc(i18n.count)+':</span></td><td>'+esc(d[4])+'</td></tr>'):'')+
-            '<tr><td><span class="label">'+esc(i18n.first)+':</span></td><td>'+this.formatDate(d[5], 'display')+'</td></tr>'+
-            '<tr><td><span class="label">'+esc(i18n.last)+':</span></td><td>'+this.formatDate(d[6], 'display')+'</td></tr>'+
+            '<tr><td><span class="label">'+esc(i18n.first)+':</span></td><td>'+esc(this.formatDate(d[5], 'display'))+'</td></tr>'+
+            '<tr><td><span class="label">'+esc(i18n.last)+':</span></td><td>'+esc(this.formatDate(d[6], 'display'))+'</td></tr>'+
             (d[7]?('<tr><td><span class="label">'+esc(i18n.host)+':</span></td><td>'+esc(d[7])+'</td></tr>'):'')+
             (d[8]?('<tr><td><span class="label">'+esc(i18n.uri)+':</span></td><td><div class="detail-info">'+esc(d[8])+'</div></td></tr>'):'')+
             '</table></div>';

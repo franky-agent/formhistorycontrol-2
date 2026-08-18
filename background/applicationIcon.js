@@ -35,6 +35,10 @@ const ENABLED_SVG_ICON = "/theme/icons/state/fhc_icon_enabled.svg";
 
 
 function receiveIconEvents(fhcEvent, sender, sendResponse) {
+    // Security: only accept messages from this extension's own contexts.
+    if (!sender || sender.id !== browser.runtime.id) {
+        return false;
+    }
     if (fhcEvent.eventType && fhcEvent.eventType === 888 &&
           (fhcEvent.domainFilterChanged || fhcEvent.fieldFilterChanged || fhcEvent.retainTypeChanged || fhcEvent.overrideIncognitoChanged)) {
         // only for the active browsertab(s)

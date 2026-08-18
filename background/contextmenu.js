@@ -14,6 +14,10 @@ browser.runtime.onMessage.addListener(receiveContextEvents);
 // MF3 browser.runtime.onInstalled.addListener(receiveContextEvents);
 
 function receiveContextEvents(fhcEvent, sender, sendResponse) {
+    // Security: only accept messages from this extension's own contexts.
+    if (!sender || sender.id !== browser.runtime.id) {
+        return false;
+    }
     if (fhcEvent.eventType && fhcEvent.eventType === 888 && fhcEvent.contextmenuAvailChanged) {
         // remove the context menu and rebuild from scratch
         const promisesArray = [];

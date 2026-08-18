@@ -54,6 +54,18 @@ function addAutocomplete(event) {
     if (elem.hasAttribute('data-fhc')) {
         return;
     }
+    // skip sensitive fields (passwords, credit-card, one-time-code) and opted-out fields
+    if (elem.hasAttribute('autocomplete')) {
+        const tokens = elem.getAttribute('autocomplete').toLowerCase().trim().split(/\s+/);
+        const sensitive = new Set([
+            'cc-name','cc-given-name','cc-additional-name','cc-family-name',
+            'cc-number','cc-exp','cc-exp-month','cc-exp-year','cc-csc','cc-type',
+            'current-password','new-password','one-time-code','off','nope'
+        ]);
+        if (tokens.some(token => sensitive.has(token))) {
+            return;
+        }
+    }
     const key = getKey(elem);
     elem.setAttribute('data-fhc', key);
     // console.log('Adding autocomplete to id: ' + elem.id + ', key: ' + key);

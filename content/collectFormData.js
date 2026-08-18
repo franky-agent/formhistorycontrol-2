@@ -423,7 +423,7 @@ function _removeAllStyles(node, includeTransition) {
 function _fillformfields(action, targetTabId) {
     document.querySelectorAll("input,textarea").forEach( (elem) => {
         // text types
-        if (_isTextInputSubtype(elem.type) && _isDisplayed(elem)) {
+        if (_isTextInputSubtype(elem.type) && _isDisplayed(elem) && !_isExcludedByAutocomplete(elem)) {
             _requestHistoricValue(elem, action, targetTabId, "text");
         }
     });
@@ -692,6 +692,8 @@ function onContentChanged(event) {
 
     // only handle text inputs
     if ("input" === n && !_isTextInputSubtype(t.type)) return;
+    // skip fields marked sensitive/opted-out via autocomplete attribute (passwords, cc, one-time-code, off)
+    if ("input" === n && _isExcludedByAutocomplete(t)) return;
 
     //console.log("node of type: " + n);
     if ("textarea" === n || "input" === n) {
@@ -776,6 +778,36 @@ function _isTextInputSubtype(type) {
     return ("text" === type || "search" === type || "tel" === type || "url" === type || "email" === type
             || "textarea" === type || "week" === type || "month" === type || "date" === type || "time" === type
             || "datetime-local" === type || "datetime" === type);
+}
+
+/**
+ * Sensitive autocomplete attribute tokens that indicate a field should never be
+ * saved (passwords, credit cards, one-time codes). The check is case-insensitive
+ * and matches both exact tokens and the space-separated token list per the HTML spec.
+ */
+const _SENSITIVE_AUTOCOMPLETE_TOKENS = new Set([
+    'cc-name', 'cc-given-name', 'cc-additional-name', 'cc-family-name',
+    'cc-number', 'cc-exp', 'cc-exp-month', 'cc-exp-year',
+    'cc-csc', 'cc-type',
+    'current-password', 'new-password',
+    'one-time-code',
+    'off', 'nope', // explicit opt-out sentinels used by many sites
+]);
+
+/**
+ * Determine whether a DOM element should be excluded from form-history collection
+ * because its autocomplete attribute marks it as sensitive or opted out.
+ *
+ * @param  elem {Element}
+ * @return {Boolean} true when the element must NOT be collected
+ */
+function _isExcludedByAutocomplete(elem) {
+    if (!elem || !elem.hasAttribute || !elem.hasAttribute('autocomplete')) {
+        return false;
+    }
+    const tokens = elem.getAttribute('autocomplete').toLowerCase().trim().split(/\s+/);
+    // the last token is the autofill detail / field name per HTML spec; check all tokens defensively
+    return tokens.some(token => _SENSITIVE_AUTOCOMPLETE_TOKENS.has(token));
 }
 
 function _isFormElementInputSubtype(type) {

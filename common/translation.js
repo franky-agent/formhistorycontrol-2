@@ -16,7 +16,7 @@ function translate(/*event*/) {
         if (translation) {
             let isOption = (elem.nodeName === 'OPTION');
             if (elem.nodeType === Node.ELEMENT_NODE && !isOption && elem.value) {
-                elem.vakue = translation;
+                elem.value = translation;
             } else if (elem.nodeType === Node.ELEMENT_NODE && !isOption && elem.label) {
                 elem.label = translation;
             } else if (elem.hasChildNodes()) {

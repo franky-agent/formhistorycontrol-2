@@ -19,6 +19,21 @@ const FILL_STYLE = [
     {prop: 'box-shadow', value:'inset 0 0 0 2px red'}
 ];
 
+/**
+ * Check whether the content script is running in a private/incognito context.
+ * Uses browser.extension.inIncognitoContext where available (Firefox MV2/MV3
+ * and Chrome MV2); falls back to false for environments where the deprecated
+ * extension API is unavailable (Chrome MV3 service-worker-adjacent contexts).
+ * @returns {boolean}
+ */
+function _isIncognitoContext() {
+    try {
+        return !!(browser.extension && browser.extension.inIncognitoContext);
+    } catch (e) {
+        return false;
+    }
+}
+
 browser.runtime.onMessage.addListener(receiveEvents);
 
 function receiveEvents(fhcActionEvent /*, sender, sendResponse*/) {
@@ -659,7 +674,7 @@ function onFormSubmit(event) {
         _processFormElementEvent({
             eventType: 2,
             host: formHost,
-            incognito: browser.extension.inIncognitoContext,
+            incognito: _isIncognitoContext(),
             formElements: allFormElements
         });
     }
@@ -965,7 +980,7 @@ function _enqueueContentEvent(name, type, id, formid, location, pagetitle, node)
         url:        location.href,
         host:       _getHost(location),
         pagetitle:  pagetitle,
-        incognito:  browser.extension.inIncognitoContext,
+        incognito:  _isIncognitoContext(),
         last:       null,
         value:      null
     };

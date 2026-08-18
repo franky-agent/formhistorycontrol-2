@@ -1,0 +1,18 @@
+# Build output
+.dist/
+
+# Node / npm
+node_modules/
+package-lock.json
+
+# IDE
+.idea/
+*.iml
+
+# Backups
+*.bak
+*.zip
+
+# OS
+.DS_Store
+Thumbs.db

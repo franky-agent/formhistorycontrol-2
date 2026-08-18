@@ -61,6 +61,10 @@
     }
   ],
 
+  "content_security_policy": {
+    "extension_pages": "default-src 'self'"
+  },
+
   "action": {
     "default_icon": "theme/icons/fhc-128.png",
     "default_title": "__MSG_extensionName__",

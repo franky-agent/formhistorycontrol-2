@@ -54,7 +54,11 @@ function addAutocomplete(event) {
     if (elem.hasAttribute('data-fhc')) {
         return;
     }
-    // skip sensitive fields (passwords, credit-card, one-time-code) and opted-out fields
+    // skip password fields (most login forms omit autocomplete attribute on passwords)
+    if (elem.type === 'password') {
+        return;
+    }
+    // skip sensitive fields (credit-card, one-time-code) and opted-out fields
     if (elem.hasAttribute('autocomplete')) {
         const tokens = elem.getAttribute('autocomplete').toLowerCase().trim().split(/\s+/);
         const sensitive = new Set([

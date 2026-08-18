@@ -1,0 +1,17 @@
+{
+  "name": "formhistorycontrol-2-test-suite",
+  "version": "1.0.0",
+  "description": "Automated test suite for Form History Control II — security fixes and MV3 compliance",
+  "private": true,
+  "scripts": {
+    "test": "node test/run-all-tests.js",
+    "test:security": "node test/test-security-fixes.js",
+    "test:mv3": "node test/test-mv3-compliance.js",
+    "test:manifest": "node test/test-manifest-validation.js",
+    "test:lint": "node test/test-webext-lint.js",
+    "build:firefox": "python3 .script/build_extension.py firefox",
+    "build:chrome": "python3 .script/build_extension.py chrome",
+    "lint": "web-ext lint --source-dir=.dist/dist_firefox --config-discovery=false"
+  },
+  "devDependencies": {}
+}

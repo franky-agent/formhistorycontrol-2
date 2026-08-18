@@ -20,6 +20,11 @@
     "clipboardWrite"
   ],
 
+  "host_permissions": [
+    "*://*/*",
+    "file:///*"
+  ],
+
   "icons": {
     "16": "theme/icons/fhc-16.png",
     "32": "theme/icons/fhc-32.png",
@@ -55,6 +60,10 @@
       "all_frames" : true
     }
   ],
+
+  "content_security_policy": {
+    "extension_pages": "default-src 'self'"
+  },
 
   "action": {
     "default_icon": "theme/icons/fhc-128.png",
